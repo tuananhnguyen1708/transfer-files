@@ -2,3 +2,5 @@
 .DS_Store
 airflow-repo/logs/*
 airflow-repo/dags/__pycache__/*
+source_sftp_server
+dest_sftp_server

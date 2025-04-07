@@ -3,35 +3,34 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.context import Context
 from airflow.exceptions import AirflowSkipException
-from file_transfer_module.file_transfer import FileTransfer
-from file_transfer_module.sftp_file_transfer import SFTPFileTransfer
+from sync_file.file_transfer_module.file_transfer import FileTransfer
+from sync_file.file_transfer_module.sftp_file_transfer import SFTPFileTransfer
 
-config = {
-    'source_host': '192.168.1.3',
-    'source_port': 2222,
-    'source_user': 'sftp1',
-    'source_password': '123456',
-    'source_path': '/',
-    'target_host': '192.168.1.3',
-    'target_port': 2223,
-    'target_user': 'sftp2',
-    'target_password': '123456',
-    'target_path': '/',
-}
+config = {{ config }}
+
+
+def init_connection(type: str, host: str, port: int, user: str, password: str, root_path: str) -> FileTransfer:
+    match type:
+        case 'SFTP':
+            return SFTPFileTransfer(host=host, port=port, username=user, password=password, root_path=root_path)
+        case _:
+            msg = f"Connection type {type} isn't supported"
+            raise Exception(msg)
 
 
 def init_src_connection() -> FileTransfer:
     # init source SFTP connection
-    source_conn = SFTPFileTransfer(host=config['source_host'], port=config['source_port'],
-                                   username=config['source_user'],
-                                   password=config['source_password'], root_path=config['source_path'])
+    source_conn = init_connection(type=config['source_type'], host=config['source_host'], port=config['source_port'],
+                                  user=config['source_user'], password=config['source_password'],
+                                  root_path=config['source_path'])
     return source_conn
 
 
 def init_target_connection() -> FileTransfer:
     # init target SFTP connection
-    target_conn = SFTPFileTransfer(host=config['target_host'], port=config['target_port'], username=config['target_user'],
-                                 password=config['target_password'], root_path=config['target_path'])
+    target_conn = init_connection(type=config['target_type'], host=config['target_host'], port=config['target_port'],
+                                  user=config['target_user'], password=config['target_password'],
+                                  root_path=config['target_path'])
     return target_conn
 
 
@@ -73,7 +72,7 @@ def put_files(ti: Context) -> None:
 
 
 with DAG(
-        dag_id='sync_files',
+        dag_id=config['job_name'],
         schedule_interval=None,
         start_date=days_ago(1),
         catchup=False,

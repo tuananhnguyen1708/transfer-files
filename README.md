@@ -3,7 +3,7 @@
 Cake Digital Banking's home test
 
 ## Prerequisites
-- Python 3.9+
+- Python 3.10+
 - Docker
 
 ## Installation
@@ -29,7 +29,6 @@ docker inspect -f '{{.State.Running}}' sftp1 sftp2
 - After 2 servers are running, let's create some files/folders with any level of complexity in folder `source_sftp_server` to prepare for sync files testing.
 
 ### Airflow
-- Update `source_host` value and `target_host` value in `config` variable in `sync_files.py` by local IP.
 - Build Aiflow from `docker-compose.yaml`:
 ```bash
 sudo docker compose -f airflow-repo/docker-compose.yaml up
@@ -44,7 +43,41 @@ docker inspect -f '{{.State.Running}}' sftp1 sftp2
 # true
 ```
 - Access to http://localhost:8080 and login by user/password: `airflow/airflow`.
-- Checking if `sync_files` DAG is available.
 
 ## Usage
-- Trigger the `sync_files` DAG and verify that the `target_sftp_server` folder contains all files from the `source_sftp_server` folder.
+### Build DAGs by scripts
+- There are 2 config files which describe job information (in this test, using json files such as a database):
+
+`airflow-repo/scripts/configs/source_configs.json`: This file includes the information of all connections.
+```json
+{
+  "sftp1": { // an unique connection name
+    "type": "SFTP",  // connection type: SFTP,S3,etc
+    "host": "192.168.1.3", // connection host. If host is local, fill the local IP   
+    "port": 2222, // connection port
+    "user": "sftp1", // connection user
+    "password": "123456" // connection password
+  }
+}
+```
+
+`airflow-repo/scripts/configs/job_configs.json`:
+```json
+{
+  "transfer_files_sftp1_sftp2": { // an unique job name which is used as DAG id
+    "source_name": "sftp1",  // source connection name which maps to connection name in source_configs.json
+    "source_path": "/", // source root path which folder needs to processed 
+    "target_name": "sftp2", // target connection name which maps to connection name in source_configs.json
+    "target_path": "/" // target root path which folder saved all files after transfering
+  }
+}
+```
+- Update config 2 files to set up 1 or many transfer files DAGs.
+- Run scripts to build all transfer files DAGs (This step can be set up in CI pipeline in production):
+```bash
+python3 airflow-repo/scripts/gen_transfer_file_dags.py
+```
+- After running, all python files are generated in `airflow-repo/dags/sync_file` folder with name such as job name in config file. Also, all DAGs will appear in Airflow UI.  
+
+### Trigger DAG
+- Trigger generated DAGs and verify that the target folder contains all files from the source folder.

@@ -1,0 +1,23 @@
+{
+  "sftp1": {
+    "type": "SFTP",
+    "host": "192.168.1.3",
+    "port": 2222,
+    "user": "sftp1",
+    "password": "123456"
+  },
+  "sftp2": {
+    "type": "SFTP",
+    "host": "192.168.1.3",
+    "port": 2223,
+    "user": "sftp2",
+    "password": "123456"
+  },
+  "s3a": {
+    "type": "S3",
+    "host": "192.168.1.3",
+    "port": 80,
+    "user": "s3a",
+    "password": "123456"
+  }
+}

@@ -1,6 +1,8 @@
 .idea
 .DS_Store
 airflow-repo/logs/*
+airflow-repo/dags/sync_file/*.py
+!airflow-repo/dags/sync_file/__init__.py
 airflow-repo/dags/__pycache__/*
 source_sftp_server
 target_sftp_server

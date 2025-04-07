@@ -1,0 +1,8 @@
+{
+  "transfer_files_sftp1_sftp2": {
+    "source_name": "sftp1",
+    "source_path": "/",
+    "target_name": "sftp2",
+    "target_path": "/"
+  }
+}

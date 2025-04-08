@@ -9,28 +9,27 @@ from sync_file.file_transfer_module.sftp_file_transfer import SFTPFileTransfer
 config = {{ config }}
 
 
-def init_connection(type: str, host: str, port: int, user: str, password: str, root_path: str) -> FileTransfer:
-    match type:
+def init_connection(conn_config: dict) -> FileTransfer:
+    match conn_config['type']:
         case 'SFTP':
-            return SFTPFileTransfer(host=host, port=port, username=user, password=password, root_path=root_path)
+            return SFTPFileTransfer(host=conn_config['host'], port=conn_config['port'], username=conn_config['user'],
+                                    password=conn_config['password'], root_path=conn_config['path'])
         case _:
             msg = f"Connection type {type} isn't supported"
             raise Exception(msg)
 
 
 def init_src_connection() -> FileTransfer:
-    # init source SFTP connection
-    source_conn = init_connection(type=config['source_type'], host=config['source_host'], port=config['source_port'],
-                                  user=config['source_user'], password=config['source_password'],
-                                  root_path=config['source_path'])
+    # init source connection
+    source_config = config['source']
+    source_conn = init_connection(source_config)
     return source_conn
 
 
 def init_target_connection() -> FileTransfer:
-    # init target SFTP connection
-    target_conn = init_connection(type=config['target_type'], host=config['target_host'], port=config['target_port'],
-                                  user=config['target_user'], password=config['target_password'],
-                                  root_path=config['target_path'])
+    # init target connection
+    target_config = config['target']
+    target_conn = init_connection(target_config)
     return target_conn
 
 
@@ -104,4 +103,4 @@ with DAG(
         python_callable=put_files
     )
 
-    tasks = detect_new_files_task >> download_files_task >> put_files_task
+    tasks = detect_new_files_task >> download_files_task >> transform_task >> put_files_task

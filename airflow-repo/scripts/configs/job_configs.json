@@ -3,6 +3,7 @@
     "source_name": "sftp1",
     "source_path": "/",
     "target_name": "sftp2",
-    "target_path": "/"
+    "target_path": "/",
+    "schedule_interval": "None"
   }
 }

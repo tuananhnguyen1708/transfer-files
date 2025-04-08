@@ -33,6 +33,7 @@ def load_job_configs():
             'target_user': target_config['user'],
             'target_password': target_config['password'],
             'target_path': job_config['target_path'],
+            'schedule_interval': job_config['schedule_interval']
         })
     return job_configs
 

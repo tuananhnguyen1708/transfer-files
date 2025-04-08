@@ -60,6 +60,11 @@ def download_files(ti: Context) -> None:
     source_conn.close()
 
 
+def transform() -> None:
+    # transform step before loading to destination
+    pass
+
+
 def put_files(ti: Context) -> None:
     process_files = ti.xcom_pull(task_ids='detect_new_files', key='process_files')
     target_conn: FileTransfer = init_target_connection()
@@ -71,9 +76,11 @@ def put_files(ti: Context) -> None:
     target_conn.close()
 
 
+schedule_interval = config['schedule_interval'] if config['schedule_interval'] != 'None' else None
+
 with DAG(
         dag_id=config['job_name'],
-        schedule_interval=None,
+        schedule_interval=schedule_interval,
         start_date=days_ago(1),
         catchup=False,
 ) as dag:
@@ -85,6 +92,11 @@ with DAG(
     download_files_task = PythonOperator(
         task_id='download_files',
         python_callable=download_files
+    )
+
+    transform_task = PythonOperator(
+        task_id='transform',
+        python_callable=transform
     )
 
     put_files_task = PythonOperator(

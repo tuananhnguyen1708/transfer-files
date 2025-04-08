@@ -19,20 +19,24 @@ def load_job_configs():
 
         job_configs.append({
             'job_name': job_name,
-            'source_name': source_name,
-            'source_type': source_config['type'],
-            'source_host': source_config['host'],
-            'source_port': source_config['port'],
-            'source_user': source_config['user'],
-            'source_password': source_config['password'],
-            'source_path': job_config['source_path'],
-            'target_name': target_name,
-            'target_type': target_config['type'],
-            'target_host': target_config['host'],
-            'target_port': target_config['port'],
-            'target_user': target_config['user'],
-            'target_password': target_config['password'],
-            'target_path': job_config['target_path'],
+            'source': {
+                'name': source_name,
+                'type': source_config['type'],
+                'host': source_config['host'],
+                'port': source_config['port'],
+                'user': source_config['user'],
+                'password': source_config['password'],
+                'path': job_config['source_path'],
+            },
+            'target': {
+                'name': target_name,
+                'type': target_config['type'],
+                'host': target_config['host'],
+                'port': target_config['port'],
+                'user': target_config['user'],
+                'password': target_config['password'],
+                'path': job_config['target_path'],
+            },
             'schedule_interval': job_config['schedule_interval']
         })
     return job_configs
